@@ -1,4 +1,4 @@
-package com.metsmarko.lhvcms.customer;
+package com.metsmarko.lhvcms.controller;
 
 import com.metsmarko.lhvcms.BaseIntegrationTest;
 import com.metsmarko.lhvcms.customer.model.CreateOrUpdateCustomerDto;
@@ -19,7 +19,8 @@ class CustomerControllerTest extends BaseIntegrationTest {
   private static final String CUSTOMERS_ID_ENDPOINT = CUSTOMERS_ENDPOINT + "/{id}";
 
   @Test
-  void testManageCustomer() {
+  void testManageCustomers() {
+    // create customer1
     CreateOrUpdateCustomerDto createCustomer1 = new CreateOrUpdateCustomerDto("firstName1", "lastName1", "email1@email.com");
     CustomerDto customer1Dto = givenHelper(createCustomer1)
         .when()
@@ -37,6 +38,7 @@ class CustomerControllerTest extends BaseIntegrationTest {
     assertEquals(customer1Dto.createdDtime(), customer1Dto.modifiedDtime());
     assertEquals(customer1Dto, getCustomerById(customer1Dto.id()));
 
+    // create customer2
     CreateOrUpdateCustomerDto createCustomer2 = new CreateOrUpdateCustomerDto("firstName2", "lastName2", "email2@email.com");
     CustomerDto customer2Dto = givenHelper(createCustomer2)
         .when()
@@ -55,6 +57,7 @@ class CustomerControllerTest extends BaseIntegrationTest {
 
     assertEquals(customer2Dto, getCustomerById(customer2Dto.id()));
 
+    // update customer2
     CreateOrUpdateCustomerDto updateCustomer2 = new CreateOrUpdateCustomerDto(
         "firstName22", "lastName22", "email22@email.com"
     );
@@ -75,6 +78,7 @@ class CustomerControllerTest extends BaseIntegrationTest {
 
     assertEquals(updatedCustomer2Dto, getCustomerById(customer2Dto.id()));
 
+    // delete customer2
     givenHelper()
         .when()
         .delete(CUSTOMERS_ID_ENDPOINT, customer2Dto.id())
@@ -91,12 +95,15 @@ class CustomerControllerTest extends BaseIntegrationTest {
   }
 
   @Test
-  void testCustomerEndpoints404() {
+  void testGetCustomer_DoesNotExist() {
     givenHelper()
         .get(CUSTOMERS_ID_ENDPOINT, UUID.randomUUID())
         .then()
         .statusCode(HttpStatus.NOT_FOUND.value());
+  }
 
+  @Test
+  void testUpdateCustomer_DoesNotExist() {
     CreateOrUpdateCustomerDto updateCustomer = new CreateOrUpdateCustomerDto(
         "firstName", "lastName", "email@email.com"
     );
@@ -108,7 +115,7 @@ class CustomerControllerTest extends BaseIntegrationTest {
   }
 
   @Test
-  void testCustomerEndpointsBadInput() {
+  void testCreateCustomer_BadInput() {
     CreateOrUpdateCustomerDto createCustomer = new CreateOrUpdateCustomerDto(
         "", "lastName", "email@email.com"
     );
@@ -121,11 +128,14 @@ class CustomerControllerTest extends BaseIntegrationTest {
         .body()
         .as(ProblemDetail.class);
     assertEquals("First name must be between 1 and 255 characters", problemDetail.getDetail());
+  }
 
+  @Test
+  void testUpdateCustomer_BadInput() {
     CreateOrUpdateCustomerDto updateCustomer = new CreateOrUpdateCustomerDto(
         "firstName", null, "email@email.com"
     );
-    problemDetail = givenHelper(updateCustomer)
+    ProblemDetail problemDetail = givenHelper(updateCustomer)
         .when()
         .put(CUSTOMERS_ID_ENDPOINT, UUID.randomUUID())
         .then()
