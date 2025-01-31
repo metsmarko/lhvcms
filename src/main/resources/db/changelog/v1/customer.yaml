@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: createCustomerEntity
+      author: marko
+      changes:
+        - createTable:
+            tableName: customer
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  defaultValueComputed: random_uuid()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_dtime
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: modified_dtime
+                  type: timestamp with time zone
+                  constraints:
+                    nullable: false
